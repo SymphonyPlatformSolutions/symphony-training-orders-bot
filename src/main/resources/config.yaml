@@ -1,0 +1,5 @@
+host: develop2.symphony.com
+
+bot:
+  username: devcertbot12345
+  privateKeyPath: src/main/resources/rsa/privatekey.pem
