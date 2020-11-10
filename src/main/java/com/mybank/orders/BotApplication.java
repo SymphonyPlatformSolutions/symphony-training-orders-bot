@@ -6,13 +6,10 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.template.api.Template;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromClasspath;
 import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
-import static java.util.Collections.emptyMap;
+import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromFile;
 import static java.util.Collections.singletonMap;
 
 /**
@@ -26,7 +23,7 @@ public class BotApplication {
   public static void main(String[] args) throws Exception {
 
     // Initialize BDK entry point
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromFile("config.yaml"));
 
     // Register a "slash" activity
     bdk.activities().register(slash("/gif", false, context -> {
