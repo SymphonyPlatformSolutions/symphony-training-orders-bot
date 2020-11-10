@@ -3,3 +3,6 @@ host: develop2.symphony.com
 bot:
   username: devcertbot12345
   privateKeyPath: rsa/privatekey.pem
+app:
+  appId: devcertapp12345
+  privateKeyPath: rsa/privatekey.pem

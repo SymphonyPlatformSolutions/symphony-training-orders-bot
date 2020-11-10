@@ -1,16 +1,12 @@
 package com.mybank.orders;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.gen.api.model.V4Initiator;
-import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
-import com.symphony.bdk.template.api.Template;
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.gen.api.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
+import java.util.List;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromFile;
-import static java.util.Collections.singletonMap;
 
 /**
  * Simple Bot Application.
@@ -25,28 +21,31 @@ public class BotApplication {
     // Initialize BDK entry point
     final SymphonyBdk bdk = new SymphonyBdk(loadFromFile("config.yaml"));
 
-    // Register a "slash" activity
-    bdk.activities().register(slash("/gif", false, context -> {
-        Template template = bdk.messages().templates().newTemplateFromClasspath("/templates/gif.ftl");
-        bdk.messages().send(context.getStreamId(), Message.builder().template(template).build());
-    }));
+    // Query for a user
+    List<UserV2> users = bdk.users().searchUserByUsernames(List.of("ys"));
+    long userId = users.get(0).getId();
 
-    // Register a "formReply" activity that handles the Gif category form submission
-    bdk.activities().register(new GifFormActivity(bdk.messages()));
+    // Create an IM stream
+    Stream stream = bdk.streams().create(userId);
 
-    // Subscribe to 'onUserJoinedRoom' Real Time Event
-    bdk.datafeed().subscribe(new RealTimeEventListener() {
+    // Send a message
+    bdk.messages().send(stream.getId(), "Hello IM");
 
-      @Override
-      public void onUserJoinedRoom(V4Initiator initiator, V4UserJoinedRoom event) {
-        final String userDisplayName = event.getAffectedUser().getDisplayName();
-        Template template = bdk.messages().templates().newTemplateFromClasspath("/templates/welcome.ftl");
-        bdk.messages().send(event.getStream(),
-            Message.builder().template(template, singletonMap("name", userDisplayName)).build());
-      }
-    });
+    // Create a room
+    V3RoomAttributes roomAttributes = new V3RoomAttributes()
+      .name("Fancy Room")
+      .description("Fancy Description");
+    V3RoomDetail v3RoomDetail = bdk.streams().create(roomAttributes);
 
-    // finally, start the datafeed read loop
-    bdk.datafeed().start();
+    // Add a member to the new room
+    String roomId = v3RoomDetail.getRoomSystemInfo().getId();
+    bdk.streams().addMemberToRoom(userId, roomId);
+
+    // Send a message into the room
+    bdk.messages().send(roomId, "Hello Room");
+
+    // Send a message into the room on behalf of another user
+    AuthSession ys = bdk.obo("ys");
+    bdk.obo(ys).messages().send(roomId, "Hello from OBO");
   }
 }
