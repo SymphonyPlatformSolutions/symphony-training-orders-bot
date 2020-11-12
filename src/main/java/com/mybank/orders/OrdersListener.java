@@ -37,14 +37,16 @@ class OrdersListener implements RealTimeEventListener {
     V4Initiator initiator,
     V4SymphonyElementsAction event
   ) {
-    @SuppressWarnings("unchecked")
-    Map<String, String> values = (Map<String, String>) event.getFormValues();
+    if (event.getFormId().equals("order")) {
+      @SuppressWarnings("unchecked")
+      Map<String, String> values = (Map<String, String>) event.getFormValues();
 
-    String ticker = values.get("ticker").replace("$", "");
-    int quantity = Integer.parseInt(values.get("quantity"));
-    int price = Integer.parseInt(values.get("price"));
+      String ticker = values.get("ticker").replace("$", "");
+      int quantity = Integer.parseInt(values.get("quantity"));
+      int price = Integer.parseInt(values.get("price"));
 
-    String replyTemplate = "Order placed for %d of <cash tag=\"%s\"/> @ %d";
-    bdk.messages().send(event.getStream(), String.format(replyTemplate, quantity, ticker, price));
+      String replyTemplate = "Order placed for %d of <cash tag=\"%s\"/> @ %d";
+      bdk.messages().send(event.getStream(), String.format(replyTemplate, quantity, ticker, price));
+    }
   }
 }

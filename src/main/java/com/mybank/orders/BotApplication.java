@@ -1,6 +1,7 @@
 package com.mybank.orders;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.activity.command.SlashCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromFile;
@@ -19,6 +20,22 @@ public class BotApplication {
     final SymphonyBdk bdk = new SymphonyBdk(loadFromFile("config.yaml"));
 
     bdk.datafeed().subscribe(new OrdersListener(bdk));
+
+    bdk.activities().register(SlashCommand.slash(
+      "/price",
+      false,
+      context -> {
+        String form = "<form id=\"price\">";
+        form += "<text-field name=\"ticker\" placeholder=\"Ticker\" /><br />";
+        form += "<button type=\"action\" name=\"price\">Get Price</button>";
+        form += "</form>";
+
+        bdk.messages().send(context.getStreamId(), form);
+      }
+    ));
+
+    bdk.activities().register(new PriceFormActivity(bdk.messages()));
+
     bdk.datafeed().start();
   }
 }
