@@ -6,7 +6,9 @@ import com.symphony.bdk.core.activity.form.FormReplyContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.message.MessageService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PriceFormActivity extends FormReplyActivity<FormReplyContext> {
   private final MessageService messages;
 

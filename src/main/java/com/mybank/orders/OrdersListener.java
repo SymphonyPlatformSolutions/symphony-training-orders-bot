@@ -1,41 +1,42 @@
 package com.mybank.orders;
 
-import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.spring.events.RealTimeEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import java.util.Map;
 
-class OrdersListener implements RealTimeEventListener {
-  private final SymphonyBdk bdk;
+@Component
+class OrdersListener {
+  private final MessageService messages;
 
-  public OrdersListener(SymphonyBdk bdk) {
-    this.bdk = bdk;
+  public OrdersListener(MessageService messages) {
+    this.messages = messages;
   }
 
-  @Override
-  public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-    V4Message msg = event.getMessage();
+  @EventListener
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
+    V4Message msg = event.getSource().getMessage();
     String msgText = msg.getMessage().replaceAll("<[^>]*>", "");
 
     if (msgText.startsWith("/order")) {
-      String message = bdk.messages().templates()
+      String message = messages.templates()
         .newTemplateFromClasspath("/templates/order-form.ftl")
         .process(Map.of());
-      bdk.messages().send(msg.getStream(), message);
+      messages.send(msg.getStream(), message);
     }
   }
 
-  @Override
+  @EventListener
   public void onSymphonyElementsAction(
-    V4Initiator initiator,
-    V4SymphonyElementsAction event
+    RealTimeEvent<V4SymphonyElementsAction> event
   ) {
-    if (event.getFormId().equals("order")) {
+    if (event.getSource().getFormId().equals("order")) {
       @SuppressWarnings("unchecked")
-      Map<String, String> values = (Map<String, String>) event.getFormValues();
+      Map<String, String> values = (Map<String, String>) event.getSource().getFormValues();
 
       String ticker = values.get("ticker").replace("$", "");
       int quantity = Integer.parseInt(values.get("quantity"));
@@ -47,10 +48,10 @@ class OrdersListener implements RealTimeEventListener {
         "price", price
       );
 
-      String message = bdk.messages().templates()
+      String message = messages.templates()
         .newTemplateFromClasspath("/templates/order-confirm.ftl")
         .process(data);
-      bdk.messages().send(event.getStream(), message);
+      messages.send(event.getSource().getStream(), message);
     }
   }
 }
