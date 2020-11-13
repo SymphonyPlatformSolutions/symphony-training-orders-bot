@@ -9,3 +9,4 @@ This repository is divided into branches, each representing the end state of eac
 * [Chapter 5: Using REST API Clients](https://github.com/SymphonyPlatformSolutions/symphony-training-orders-bot/tree/chapter-5)
 * [Chapter 6: Handling Real Time Events](https://github.com/SymphonyPlatformSolutions/symphony-training-orders-bot/tree/chapter-6)
 * [Chapter 7: Implementing Activities](https://github.com/SymphonyPlatformSolutions/symphony-training-orders-bot/tree/chapter-7)
+* [Chapter 8: Message Templating](https://github.com/SymphonyPlatformSolutions/symphony-training-orders-bot/tree/chapter-8)

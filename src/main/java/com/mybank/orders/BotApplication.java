@@ -4,6 +4,7 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Map;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromFile;
 
 /**
@@ -25,12 +26,10 @@ public class BotApplication {
       "/price",
       false,
       context -> {
-        String form = "<form id=\"price\">";
-        form += "<text-field name=\"ticker\" placeholder=\"Ticker\" /><br />";
-        form += "<button type=\"action\" name=\"price\">Get Price</button>";
-        form += "</form>";
-
-        bdk.messages().send(context.getStreamId(), form);
+        String message = bdk.messages().templates()
+          .newTemplateFromClasspath("/templates/price-form.ftl")
+          .process(Map.of());
+        bdk.messages().send(context.getStreamId(), message);
       }
     ));
 

@@ -23,7 +23,10 @@ public class PriceFormActivity extends FormReplyActivity<FormReplyContext> {
   protected void onActivity(FormReplyContext context) {
     String ticker = context.getFormValue("ticker");
     int price = (int) (Math.random() * 777);
-    String response = "The price of " + ticker + " is " + price;
+
+    String response = messages.templates()
+      .newTemplateFromClasspath("/templates/price-quote.ftl")
+      .process(new PriceQuote(price, ticker));
     messages.send(context.getSourceEvent().getStream(), response);
   }
 

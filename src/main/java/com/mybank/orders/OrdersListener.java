@@ -21,14 +21,10 @@ class OrdersListener implements RealTimeEventListener {
     String msgText = msg.getMessage().replaceAll("<[^>]*>", "");
 
     if (msgText.startsWith("/order")) {
-      String form = "<form id=\"order\">";
-      form += "<text-field name=\"ticker\" placeholder=\"Ticker\" /><br />";
-      form += "<text-field name=\"quantity\" placeholder=\"Quantity\" /><br />";
-      form += "<text-field name=\"price\" placeholder=\"Price\" /><br />";
-      form += "<button type=\"action\" name=\"order\">Place Order</button>";
-      form += "</form>";
-
-      bdk.messages().send(msg.getStream(), form);
+      String message = bdk.messages().templates()
+        .newTemplateFromClasspath("/templates/order-form.ftl")
+        .process(Map.of());
+      bdk.messages().send(msg.getStream(), message);
     }
   }
 
@@ -45,8 +41,16 @@ class OrdersListener implements RealTimeEventListener {
       int quantity = Integer.parseInt(values.get("quantity"));
       int price = Integer.parseInt(values.get("price"));
 
-      String replyTemplate = "Order placed for %d of <cash tag=\"%s\"/> @ %d";
-      bdk.messages().send(event.getStream(), String.format(replyTemplate, quantity, ticker, price));
+      Map<String, Object> data = Map.of(
+        "ticker", ticker,
+        "quantity", quantity,
+        "price", price
+      );
+
+      String message = bdk.messages().templates()
+        .newTemplateFromClasspath("/templates/order-confirm.ftl")
+        .process(data);
+      bdk.messages().send(event.getStream(), message);
     }
   }
 }
