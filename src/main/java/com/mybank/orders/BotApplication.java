@@ -22,7 +22,7 @@ public class BotApplication {
     final SymphonyBdk bdk = new SymphonyBdk(loadFromFile("config.yaml"));
 
     // Query for a user
-    List<UserV2> users = bdk.users().searchUserByUsernames(List.of("ys"));
+    List<UserV2> users = bdk.users().listUsersByUsernames(List.of("ys"));
     long userId = users.get(0).getId();
 
     // Create an IM stream
